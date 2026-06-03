@@ -106,7 +106,7 @@ Route::livewire('/galleries/{gallery}/photos/{photo}', 'pages::galleries.photos.
 Route::livewire('/photoshoots', 'pages::photoshoots')->name('photoshoots')->middleware(['auth', 'verified']);
 Route::livewire('/photoshoots/{photoshoot}', 'pages::photoshoots.show')->name('photoshoots.show')->middleware(['auth', 'verified']);
 
-Route::livewire('/signatures/{signature}/sign', 'pages::signatures.sign')->name('signatures.sign');
+Route::livewire('/signatures/{signature:ulid}/sign', 'pages::signatures.sign')->name('signatures.sign');
 
 Route::livewire('/settings/appearance', 'pages::settings.appearance')->name('settings.appearance')->middleware('auth');
 
