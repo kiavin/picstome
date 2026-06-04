@@ -86,7 +86,7 @@ class StripeEventListener
         $priceId = $this->getCheckoutPriceId($session['id'], $team);
 
         $team->update([
-            'lifetime' => true,
+            'lifetime_at' => now(),
             'custom_storage_limit' => $this->storageLimitForPrice($priceId),
         ]);
     }

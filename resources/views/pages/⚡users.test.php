@@ -110,4 +110,59 @@ describe('Users Page', function () {
 
         expect($team->storage_used_percent)->toBe(100);
     });
+
+    it('grants lifetime access and sets lifetime_at', function () {
+        $admin = User::factory()->withPersonalTeam()->create([
+            'email' => 'admin@example.com',
+        ]);
+        $user = User::factory()->withPersonalTeam()->create();
+        $team = $user->personalTeam();
+        expect($team->lifetime_at)->toBeNull();
+
+        Livewire::actingAs($admin)
+            ->test('pages::users')
+            ->call('editUser', $user->id)
+            ->set('userForm.lifetime', true)
+            ->call('saveUser')
+            ->assertHasNoErrors();
+
+        $team->refresh();
+        expect($team->lifetime_at)->not->toBeNull();
+    });
+
+    it('revokes lifetime access and clears lifetime_at', function () {
+        $admin = User::factory()->withPersonalTeam()->create([
+            'email' => 'admin@example.com',
+        ]);
+        $user = User::factory()->withPersonalTeam()->create();
+        $team = $user->personalTeam();
+        $team->update(['lifetime_at' => now()->subDay()]);
+        expect($team->lifetime_at)->not->toBeNull();
+
+        Livewire::actingAs($admin)
+            ->test('pages::users')
+            ->call('editUser', $user->id)
+            ->set('userForm.lifetime', false)
+            ->call('saveUser')
+            ->assertHasNoErrors();
+
+        $team->refresh();
+        expect($team->lifetime_at)->toBeNull();
+    });
+
+    it('filters to show only lifetime users', function () {
+        $admin = User::factory()->withPersonalTeam()->create([
+            'email' => 'admin@example.com',
+        ]);
+        $lifetimeUser = User::factory()->withPersonalTeam()->create();
+        $lifetimeUser->personalTeam()->update(['lifetime_at' => now()->subDay()]);
+
+        $regularUser = User::factory()->withPersonalTeam()->create();
+
+        Livewire::actingAs($admin)
+            ->test('pages::users')
+            ->set('filter', 'lifetime')
+            ->assertSee($lifetimeUser->name)
+            ->assertDontSee($regularUser->name);
+    });
 });

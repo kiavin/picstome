@@ -60,17 +60,24 @@ new class extends Component
         return response()->streamDownload(function () use ($users) {
             $handle = fopen('php://output', 'w');
             fputcsv($handle, [
-                'ID', 'Name', 'Email', 'Created At', 'Lifetime', 'Subscribed', 'Storage Used (GB)', 'Storage Limit (GB)',
+                'ID', 'Name', 'Email', 'Created At', 'Lifetime', 'Subscribed', 'Subscribed Since', 'Storage Used (GB)', 'Storage Limit (GB)',
             ]);
             foreach ($users as $user) {
                 $team = $user->personalTeam();
+                $subscribedSince = null;
+                if ($team?->lifetime_at) {
+                    $subscribedSince = $team->lifetime_at;
+                } elseif ($team?->subscribed()) {
+                    $subscribedSince = $team->subscriptions->first()?->created_at;
+                }
                 fputcsv($handle, [
                     $user->id,
                     $user->name,
                     $user->email,
                     $user->created_at,
-                    $team?->lifetime ? 'Yes' : 'No',
+                    $team?->lifetime_at ? 'Yes' : 'No',
                     $team?->subscribed() ? 'Yes' : 'No',
+                    $subscribedSince,
                     $team?->storage_used_gb,
                     $team?->has_unlimited_storage ? 'Unlimited' : $team?->storage_limit_gb,
                 ]);
@@ -81,7 +88,7 @@ new class extends Component
 
     private function usersQuery()
     {
-        $query = User::query()->with('ownedTeams');
+        $query = User::query()->with('ownedTeams.subscriptions');
 
         if (! empty($this->search)) {
             $query->where(function ($q) {
@@ -117,7 +124,7 @@ new class extends Component
             }),
             'lifetime' => $query->whereHas('ownedTeams', function ($q) {
                 $q->where('personal_team', true)
-                    ->where('lifetime', true);
+                    ->whereNotNull('lifetime_at');
             }),
             default => null,
         };
@@ -207,6 +214,7 @@ new class extends Component
                 >
                     {{ __('Storage') }}
                 </flux:table.column>
+                <flux:table.column class="max-sm:hidden">{{ __('Subscribed Since') }}</flux:table.column>
                 <flux:table.column></flux:table.column>
             </flux:table.columns>
             <flux:table.rows>
@@ -219,7 +227,7 @@ new class extends Component
                                     <flux:heading>
                                         {{ $user->name }}
 
-                                        @if ($user->personalTeam()->lifetime)
+                                        @if ($user->personalTeam()->lifetime_at)
                                             <flux:badge color="lime" size="sm">
                                                 {{ __('Lifetime') }}
                                             </flux:badge>
@@ -264,6 +272,19 @@ new class extends Component
                                         ></div>
                                     </div>
                                 </div>
+                            @endif
+                        </flux:table.cell>
+
+                        <flux:table.cell class="whitespace-nowrap max-sm:hidden">
+                            @php
+                                $team = $user->personalTeam();
+                            @endphp
+                            @if ($team->lifetime_at)
+                                {{ $team->lifetime_at->format('M j, Y') }}
+                            @elseif ($team->subscribed() && $subscription = $team->subscriptions->first())
+                                {{ $subscription->created_at->format('M j, Y') }}
+                            @else
+                                &mdash;
                             @endif
                         </flux:table.cell>
 

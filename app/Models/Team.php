@@ -35,7 +35,7 @@ class Team extends Model
     {
         return [
             'personal_team' => 'boolean',
-            'lifetime' => 'boolean',
+            'lifetime_at' => 'datetime',
             'bio' => PurifyHtmlOnGet::class,
             'other_social_links' => 'array',
             'portfolio_public_disabled' => 'boolean',
@@ -334,7 +334,7 @@ class Team extends Model
      */
     public function subscribed($type = 'default', $price = null)
     {
-        if ($this->lifetime) {
+        if ($this->lifetime_at !== null) {
             return true;
         }
 

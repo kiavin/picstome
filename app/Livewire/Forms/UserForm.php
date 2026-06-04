@@ -24,7 +24,7 @@ class UserForm extends Form
             : null;
 
         $this->monthly_contract_limit = $user->personalTeam()->monthly_contract_limit;
-        $this->lifetime = (bool) $user->personalTeam()->lifetime;
+        $this->lifetime = $user->personalTeam()->lifetime_at !== null;
     }
 
     public function update()
@@ -41,7 +41,7 @@ class UserForm extends Form
         $this->user->personalTeam()->update([
             'custom_storage_limit' => $bytes,
             'monthly_contract_limit' => $this->monthly_contract_limit,
-            'lifetime' => $this->lifetime,
+            'lifetime_at' => $this->lifetime ? now() : null,
         ]);
     }
 }

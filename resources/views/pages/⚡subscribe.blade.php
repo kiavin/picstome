@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Stripe\CustomerSession;
+use Stripe\Stripe;
 
 new class extends Component
 {
@@ -12,6 +13,8 @@ new class extends Component
 
     public function mount()
     {
+        Stripe::setApiKey(config('cashier.secret'));
+
         $user = Auth::user();
 
         if ($user->currentTeam->subscribed()) {

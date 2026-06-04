@@ -147,7 +147,7 @@ it('sets lifetime + storage limit from checkout.session.completed', function () 
 
     $team = Team::factory()->create([
         'stripe_id' => 'cus_test123',
-        'lifetime' => false,
+        'lifetime_at' => null,
         'custom_storage_limit' => 12345,
     ]);
 
@@ -169,7 +169,7 @@ it('sets lifetime + storage limit from checkout.session.completed', function () 
     $event = new WebhookReceived($payload);
     $listener->handle($event);
 
-    expect($team->fresh()->lifetime)->toBeTrue();
+    expect($team->fresh()->lifetime_at)->not->toBeNull();
     expect($team->fresh()->custom_storage_limit)->toBe(268435456000);
 });
 
@@ -178,7 +178,7 @@ it('sets lifetime + fallback storage for unknown price in checkout', function ()
 
     $team = Team::factory()->create([
         'stripe_id' => 'cus_test123',
-        'lifetime' => false,
+        'lifetime_at' => null,
         'custom_storage_limit' => 12345,
     ]);
 
@@ -200,7 +200,7 @@ it('sets lifetime + fallback storage for unknown price in checkout', function ()
     $event = new WebhookReceived($payload);
     $listener->handle($event);
 
-    expect($team->fresh()->lifetime)->toBeTrue();
+    expect($team->fresh()->lifetime_at)->not->toBeNull();
     expect($team->fresh()->custom_storage_limit)->toBe(
         config('picstome.subscription_storage_limit')
     );
@@ -209,7 +209,7 @@ it('sets lifetime + fallback storage for unknown price in checkout', function ()
 it('ignores checkout.session.completed with subscription mode', function () {
     $team = Team::factory()->create([
         'stripe_id' => 'cus_test123',
-        'lifetime' => false,
+        'lifetime_at' => null,
         'custom_storage_limit' => 12345,
     ]);
 
@@ -228,14 +228,14 @@ it('ignores checkout.session.completed with subscription mode', function () {
     $event = new WebhookReceived($payload);
     (new StripeEventListener)->handle($event);
 
-    expect($team->fresh()->lifetime)->toBeFalse();
+    expect($team->fresh()->lifetime_at)->toBeNull();
     expect($team->fresh()->custom_storage_limit)->toBe(12345);
 });
 
 it('does not update storage for non-matching customer on checkout', function () {
     $team = Team::factory()->create([
         'stripe_id' => 'cus_test123',
-        'lifetime' => false,
+        'lifetime_at' => null,
         'custom_storage_limit' => 12345,
     ]);
 
@@ -254,14 +254,14 @@ it('does not update storage for non-matching customer on checkout', function () 
     $event = new WebhookReceived($payload);
     (new StripeEventListener)->handle($event);
 
-    expect($team->fresh()->lifetime)->toBeFalse();
+    expect($team->fresh()->lifetime_at)->toBeNull();
     expect($team->fresh()->custom_storage_limit)->toBe(12345);
 });
 
 it('ignores checkout.session.completed with missing mode and status fields', function () {
     $team = Team::factory()->create([
         'stripe_id' => 'cus_test123',
-        'lifetime' => false,
+        'lifetime_at' => null,
         'custom_storage_limit' => 12345,
     ]);
 
@@ -278,14 +278,14 @@ it('ignores checkout.session.completed with missing mode and status fields', fun
     $event = new WebhookReceived($payload);
     (new StripeEventListener)->handle($event);
 
-    expect($team->fresh()->lifetime)->toBeFalse();
+    expect($team->fresh()->lifetime_at)->toBeNull();
     expect($team->fresh()->custom_storage_limit)->toBe(12345);
 });
 
 it('ignores checkout.session.completed with unpaid status', function () {
     $team = Team::factory()->create([
         'stripe_id' => 'cus_test123',
-        'lifetime' => false,
+        'lifetime_at' => null,
         'custom_storage_limit' => 12345,
     ]);
 
@@ -304,7 +304,7 @@ it('ignores checkout.session.completed with unpaid status', function () {
     $event = new WebhookReceived($payload);
     (new StripeEventListener)->handle($event);
 
-    expect($team->fresh()->lifetime)->toBeFalse();
+    expect($team->fresh()->lifetime_at)->toBeNull();
     expect($team->fresh()->custom_storage_limit)->toBe(12345);
 });
 
@@ -342,7 +342,7 @@ it('resets storage limit to 1GB when subscription is deleted', function () {
 it('does not reset lifetime flag when subscription is deleted', function () {
     $team = Team::factory()->create([
         'stripe_id' => 'cus_lifetime',
-        'lifetime' => true,
+        'lifetime_at' => now()->subDay(),
         'custom_storage_limit' => config('picstome.subscription_storage_limit'),
     ]);
 
@@ -359,7 +359,7 @@ it('does not reset lifetime flag when subscription is deleted', function () {
     $listener = new StripeEventListener;
     $listener->handle($event);
 
-    expect($team->fresh()->lifetime)->toBeTrue();
+    expect($team->fresh()->lifetime_at)->not->toBeNull();
 });
 
 it('does not update storage limit for non-matching customer', function () {
