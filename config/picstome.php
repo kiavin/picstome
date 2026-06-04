@@ -12,6 +12,24 @@ return [
 
     'subscription_storage_limit' => 1073741824000, // 1TB in bytes
 
+    'storage_limits_by_price' => [
+        // 100 GB
+        ...array_fill_keys(
+            array_filter(explode(',', env('STRIPE_100GB_PRICES', ''))),
+            107374182400,
+        ),
+        // 250 GB
+        ...array_fill_keys(
+            array_filter(explode(',', env('STRIPE_250GB_PRICES', ''))),
+            268435456000,
+        ),
+        // 1000 GB
+        ...array_fill_keys(
+            array_filter(explode(',', env('STRIPE_1000GB_PRICES', ''))),
+            1073741824000,
+        ),
+    ],
+
     'personal_team_monthly_contract_limit' => 5,
 
     /**

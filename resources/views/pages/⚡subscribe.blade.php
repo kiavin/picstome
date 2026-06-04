@@ -3,7 +3,6 @@
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Stripe\CustomerSession;
-use Stripe\Stripe;
 
 new class extends Component
 {
@@ -13,8 +12,6 @@ new class extends Component
 
     public function mount()
     {
-        Stripe::setApiKey(config('cashier.secret'));
-
         $user = Auth::user();
 
         if ($user->currentTeam->subscribed()) {
@@ -40,17 +37,6 @@ new class extends Component
         } else {
             $this->pricingTableId = config('services.stripe.en_pricing_table_id');
         }
-    }
-
-    public function purchaseLifetime()
-    {
-        $user = Auth::user();
-        $priceId = config('services.stripe.lifetime_price_id');
-
-        return $user->currentTeam->checkout($priceId, [
-            'success_url' => route('product-checkout-success').'?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => route('subscribe'),
-        ]);
     }
 }; ?>
 
@@ -78,18 +64,6 @@ new class extends Component
                 <li class="flex gap-2 items-center"><flux:icon.check variant="mini" class="text-[#316d61]" /><flux:text variant="strong">{{ __('White label') }}</flux:text></li>
             </ul>
         </div>
-
-        @if (config('services.stripe.lifetime_price_id'))
-            <div class="hidden">
-                <flux:separator variant="subtle" :text="__('or')" />
-
-                <div class="flex justify-center mt-8">
-                    <flux:button wire:click="purchaseLifetime" variant="filled">
-                        {{ __('Purchase Lifetime Subscription') }}
-                    </flux:button>
-                </div>
-            </div>
-        @endif
     </div>
 </div>
 

@@ -171,25 +171,6 @@ Route::get('/', function () {
     return to_route('dashboard');
 })->name('home');
 
-Route::get('/product-checkout-success', function (Request $request) {
-    $sessionId = $request->get('session_id');
-    if (! $sessionId) {
-        return redirect()->route('subscribe');
-    }
-    $team = $request->user()->currentTeam;
-    $checkoutSession = $team->stripe()->checkout->sessions->retrieve($sessionId);
-    if ($checkoutSession->payment_status === 'paid') {
-        $team->update([
-            'lifetime' => true,
-            'custom_storage_limit' => config('picstome.subscription_storage_limit'),
-        ]);
-
-        return redirect()->route('dashboard')->with('success', 'Payment successful!');
-    }
-
-    return redirect()->route('subscribe');
-})->name('product-checkout-success')->middleware(['auth', 'verified']);
-
 Route::get('/settings', function () {
     return to_route('settings.profile');
 })->name('settings')->middleware('auth');
