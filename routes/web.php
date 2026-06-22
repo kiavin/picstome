@@ -4,7 +4,6 @@ use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\PasswordProtectGallery;
 use App\Jobs\AddToAcumbamailList;
 use App\Models\Gallery;
-use App\Models\Moodboard;
 use App\Models\Photo;
 use Facades\App\Services\StripeConnectService;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -25,16 +24,6 @@ Route::livewire('/@{handle}/pay/cancel', 'pages::pay.cancel')->where('handle', '
 Route::livewire('/@{handle}/portfolio', 'pages::portfolio.index')->where('handle', '[a-zA-Z0-9_]+')->name('portfolio.index');
 Route::livewire('/@{handle}/portfolio/{gallery:ulid}', 'pages::portfolio.show')->where('handle', '[a-zA-Z0-9_]+')->name('portfolio.show');
 Route::livewire('/@{handle}/portfolio/{gallery:ulid}/photos/{photo}', 'pages::portfolio.photos.show')->name('portfolio.photos.show');
-
-Route::livewire('/moodboards', 'pages::moodboards')->name('moodboards')->middleware(['auth', 'verified']);
-
-Route::livewire('/moodboards/{moodboard}', 'pages::moodboards.show')->name('moodboards.show')->middleware(['auth', 'verified']);
-
-Route::get('/shared-moodboards/{moodboard:ulid}', function (Moodboard $moodboard) {
-    return redirect()->route('shared-moodboards.show', ['moodboard' => $moodboard, 'slug' => $moodboard->slug]);
-})->name('shared-moodboards.redirect');
-
-Route::livewire('/shared-moodboards/{moodboard:ulid}/{slug}', 'pages::shared-moodboards.show')->name('shared-moodboards.show');
 
 Route::livewire('/shares/{gallery:ulid}/unlock', 'pages::shares.unlock')->name('shares.unlock');
 
