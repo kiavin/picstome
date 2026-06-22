@@ -756,13 +756,41 @@ new class extends Component
                 </flux:subheading>
             </div>
 
-            <flux:tab.group x-data="{ tab: 'lightroom' }">
+            <flux:tab.group x-data="{ tab: 'rater' }">
                 <flux:tabs size="sm" class="w-full" scrollable scrollable:fade>
+                    <flux:tab name="rater">{{ __('Rater') }}</flux:tab>
                     <flux:tab name="lightroom">{{ __('Lightroom') }}</flux:tab>
                     <flux:tab name="captureone">{{ __('Capture One') }}</flux:tab>
                     <flux:tab name="finder">{{ __('Finder/Explorer') }}</flux:tab>
                     <flux:tab name="list">{{ __('List') }}</flux:tab>
                 </flux:tabs>
+
+                <flux:tab.panel name="rater" class="pt-4!">
+                    <flux:text>
+                        {{ __('Rate your favorited images with the Picstome Rater desktop app.') }}
+                    </flux:text>
+
+                    <div class="mt-6 flex items-center gap-2">
+                        @php
+                            $rateFiles = $favorites->pluck('name')->map(function ($name) {
+                                return pathinfo($name, PATHINFO_FILENAME);
+                            })->implode(',');
+                        @endphp
+
+                        <flux:button :href="'picstome://rate?files=' . $rateFiles . '&rating=1'" variant="primary">
+                            {{ __('Rate my images') }}
+                        </flux:button>
+                    </div>
+
+                    <flux:text class="mt-2 text-sm">
+                        {{ __(':count favorited photos will be rated.', ['count' => $favorites->count()]) }}
+                    </flux:text>
+
+                    <flux:text class="mt-1">
+                        {{ __("Don't have the app?") }}
+                        <flux:link href="https://github.com/picstome/picstome-rater/releases" target="_blank">{{ __('Download Picstome Rater') }}</flux:link>
+                    </flux:text>
+                </flux:tab.panel>
 
                 <flux:tab.panel name="lightroom" class="pt-4!">
                     <flux:textarea x-ref="lightroom-textarea" readonly rows="4" class="font-mono text-sm">
