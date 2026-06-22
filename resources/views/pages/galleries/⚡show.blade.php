@@ -758,7 +758,7 @@ new class extends Component
 
             <flux:tab.group x-data="{ tab: 'rater' }">
                 <flux:tabs size="sm" class="w-full" scrollable scrollable:fade>
-                    <flux:tab name="rater">{{ __('Rater') }}</flux:tab>
+                    <flux:tab name="rater">{{ __('App') }}</flux:tab>
                     <flux:tab name="lightroom">{{ __('Lightroom') }}</flux:tab>
                     <flux:tab name="captureone">{{ __('Capture One') }}</flux:tab>
                     <flux:tab name="finder">{{ __('Finder/Explorer') }}</flux:tab>
