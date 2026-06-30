@@ -30,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Collection::macro('naturalSortBy', function ($attribute = 'name') {
-            /** @var \Illuminate\Support\Collection $this */
+            /** @var Collection $this */
             return $this->sort(function ($a, $b) use ($attribute) {
                 return strnatcmp($a->$attribute, $b->$attribute);
             })->values();

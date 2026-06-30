@@ -3,11 +3,12 @@
 namespace Database\Factories;
 
 use App\Models\Gallery;
+use App\Models\Photos;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Photos>
+ * @extends Factory<Photos>
  */
 class PhotoFactory extends Factory
 {

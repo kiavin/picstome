@@ -6,6 +6,7 @@ use App\Jobs\ProcessPhoto;
 use App\Notifications\GalleryExpirationReminder;
 use App\Notifications\SelectionLimitReached;
 use App\Traits\FormatsFileSize;
+use Database\Factories\GalleryFactory;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -22,7 +23,7 @@ use ZipStream\ZipStream;
 
 class Gallery extends Model
 {
-    /** @use HasFactory<\Database\Factories\GalleryFactory> */
+    /** @use HasFactory<GalleryFactory> */
     use FormatsFileSize, HasFactory;
 
     protected $guarded = [];
