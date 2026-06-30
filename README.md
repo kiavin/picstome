@@ -8,13 +8,13 @@ This fork lets developers and self-hosters deploy, evaluate, and develop on the 
 
 ## 🕒 Changelog (Fork Modifications)
 
-| Change                                | Description                                                                                                                                                                                                                                            |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Removed Commercial UI Constraints** | Stripped the commercial `livewire/flux-pro` package dependency from `composer.json` and removed its private repository link. The app now builds smoothly on the open-source free tier of `livewire/flux`.                                              |
-| **Dockerized Architecture**           | Scaffolding for a fully containerized stack: PHP 8.3/Laravel app server, Vite dev server, a local S3 engine, and a local SMTP relay service.                                                                                                           |
-| **Automated Dependency Scaffolding**  | An intelligent `entrypoint.sh` runtime script dynamically patches `composer.json` with open-source fallbacks and forces network configurations inside concurrently managed scripts.                                                                    |
-| **Local-First S3 Fallback**           | Intercepted CDN rewrites inside core models (`App\Models\Team` and `App\Models\Photo`) to bypass production optimization services like `wsrv.nl` or `bunny` when no cloud domain is declared, streaming files directly from your local bucket instead. |
-| **Isolated Email Capture**            | Realigned outbound mailing away from file logging directly into a dedicated local SMTP interface.                                                                                                                                                      |
+| Change | Description |
+|---|---|
+| **Removed Commercial UI Constraints** | Stripped the commercial `livewire/flux-pro` package dependency from `composer.json` and removed its private repository link. The app now builds smoothly on the open-source free tier of `livewire/flux`. |
+| **Dockerized Architecture** | Scaffolding for a fully containerized stack: PHP 8.3/Laravel app server, Vite dev server, a local S3 engine, and a local SMTP relay service. |
+| **Automated Dependency Scaffolding** | An intelligent `entrypoint.sh` runtime script dynamically patches `composer.json` with open-source fallbacks and forces network configurations inside concurrently managed scripts. |
+| **Local-First S3 Fallback** | Intercepted CDN rewrites inside core models (`App\Models\Team` and `App\Models\Photo`) to bypass production optimization services like `wsrv.nl` or `bunny` when no cloud domain is declared, streaming files directly from your local bucket instead. |
+| **Isolated Email Capture** | Realigned outbound mailing away from file logging directly into a dedicated local SMTP interface. |
 
 ---
 
@@ -75,14 +75,31 @@ docker compose up --build
 
 ### 3. Initialize the Storage Bucket (Crucial Step)
 
-Before attempting any image uploads in your new dashboard, you must establish the local bucket inside your S3 container:
+Before attempting any image uploads in your new dashboard, you must establish the local bucket inside your S3 container and override its privacy settings.
 
-1. Open your browser and navigate to the MinIO Console: **http://localhost:9001**
-2. Log in using the generic credentials:
-    - User: `generic_user`
-    - Password: `generic_password`
-3. Click **Buckets → Create Bucket** and name it exactly: `picstome-galleries`
-4. Go to the bucket's anonymous/access policy configuration and change it from **Private** to **Public** (or **Read-Only Download**) so your browser is permitted to view the gallery photos.
+Instead of fighting the ever-changing MinIO Community web console, the fastest and most bulletproof way to force the bucket to be public is to use the MinIO Client (`mc`) already packaged inside the running container. Run these commands in your host terminal, in the same directory as your `docker-compose.yml`.
+
+**A. Authenticate the internal client**
+
+This configures the internal `mc` tool to securely communicate directly with the container's hosting layer:
+
+```bash
+docker compose exec minio mc alias set localminio http://127.0.0.1:9000 generic_user generic_password
+```
+
+**B. Create the target bucket**
+
+```bash
+docker compose exec minio mc mb localminio/picstome-galleries
+```
+
+**C. Force the public download policy**
+
+This applies the open "anonymous download" policy directly to your assets, bypassing MinIO web console visibility constraints so your local browser can serve assets natively:
+
+```bash
+docker compose exec minio mc anonymous set download localminio/picstome-galleries
+```
 
 ---
 
@@ -90,11 +107,11 @@ Before attempting any image uploads in your new dashboard, you must establish th
 
 Once the containers stabilize, you can access the localized network stack using these addresses:
 
-| Service               | Endpoint URL          | Description                                                                  |
-| --------------------- | --------------------- | ---------------------------------------------------------------------------- |
-| **Picstome Web App**  | http://localhost:8091 | The main photographer dashboard and client gallery interface.                |
-| **Vite Dev Server**   | http://localhost:5173 | Hot-reloading asset compiler (runs automatically).                           |
-| **MinIO Console**     | http://localhost:9001 | Local S3 web interface to monitor uploaded photos and buckets.               |
+| Service | Endpoint URL | Description |
+|---|---|---|
+| **Picstome Web App** | http://localhost:8091 | The main photographer dashboard and client gallery interface. |
+| **Vite Dev Server** | http://localhost:5173 | Hot-reloading asset compiler (runs automatically). |
+| **MinIO Console** | http://localhost:9001 | Local S3 web interface to monitor uploaded photos and buckets. |
 | **Mailpit Dashboard** | http://localhost:8025 | Local inbox to view emails (e.g., contracts, notifications) sent by the app. |
 
 ---
@@ -117,4 +134,4 @@ resources/views/components/flux/command/input.blade.php
 
 ---
 
-_This fork exists to give anyone a clear, zero-licensing path to running and developing on the Picstome photography ecosystem entirely locally._
+*This fork exists to give anyone a clear, zero-licensing path to running and developing on the Picstome photography ecosystem entirely locally.*
