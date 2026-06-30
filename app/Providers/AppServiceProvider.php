@@ -25,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
     {
         Cashier::useCustomerModel(Team::class);
 
+        // Map the components/flux polyfill directory so <flux:*> components resolve gracefully
+        Blade::anonymousComponentPath(resource_path('views/components/flux'), 'flux');
+
         Blade::if('subscribed', function (Team $team) {
             return $team && $team->subscribed();
         });
