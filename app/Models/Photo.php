@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Jobs\DeleteFromDisk;
 use Carbon\Carbon;
+use Database\Factories\PhotoFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Photo extends Model
 {
-    /** @use HasFactory<\Database\Factories\PhotoFactory> */
+    /** @use HasFactory<PhotoFactory> */
     use HasFactory;
 
     protected $guarded = [];
@@ -333,7 +334,13 @@ class Photo extends Model
      */
     private function generateCdnUrl(string $originalUrl, array $params = [])
     {
-        $cdn = config('picstome.photo_cdn_domain', 'wsrv.nl');
+        // Notice we removed the default fallback here so we can properly check for empty strings
+        $cdn = config('picstome.photo_cdn_domain');
+
+        // Bypass CDN entirely if the environment variable is left blank (Local Development)
+        if (empty($cdn)) {
+            return $originalUrl;
+        }
 
         // Bunny.net Dynamic Image API
         if ($cdn === 'bunny' || $cdn === 'bunny.net') {
