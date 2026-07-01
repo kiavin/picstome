@@ -6,7 +6,7 @@ WORKDIR /build
 RUN apk add --no-cache git nodejs npm
 
 # Clone repository down inside build container
-RUN git clone https://github.com/picstome/picstome.git .
+RUN git clone https://github.com/kiavin/picstome.git .
 
 # Execute your exact automated Flux Pro strip and code modification rule
 RUN php -r " \
