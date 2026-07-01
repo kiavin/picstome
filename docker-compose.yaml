@@ -34,6 +34,20 @@ services:
       - minio_data:/data
     networks:
       - picstome-net
+    entrypoint: >
+      /bin/sh -c "
+      echo 'Waiting for MinIO S3 to start...';
+      until mc alias set localminio http://minio:9000 generic_user generic_password; do
+        sleep 2;
+      done;
+      echo 'MinIO is up. Creating bucket...';
+      mc mb localminio/picstome-galleries --ignore-existing;
+      echo 'Setting public download policy...';
+      mc anonymous set download localminio/picstome-galleries;
+      echo 'MinIO setup complete.';
+      exit 0;
+      "
+
 
   # ---------------------------------------------------------
   # Mailpit (Outbound Local SMTP)
