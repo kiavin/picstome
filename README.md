@@ -1,5 +1,13 @@
 # 📸 Picstome (Local-First Fork)
 
+> **🎉 Instant Deployment Available:** The entire application (complete with internal MinIO S3 storage and Mailpit SMTP server) is pre-packaged and available as a ready-to-use Docker image for local deployments!
+> 
+> You can pull and run it instantly with:
+> ```bash
+> docker run -d --name picstome-appliance -p 8091:8000 -p 9000:9000 -p 9001:9001 -p 8025:8025 -v "${PWD}\picstome_data:/data" captainkel/picstome_appliance:stable
+> ```
+> View on Docker Hub: [captainkel/picstome_appliance](https://hub.docker.com/repository/docker/captainkel/picstome_appliance/general)
+
 > A containerized, **local-first fork** of the original [picstome/picstome](https://github.com/picstome/picstome) project.
 
 This fork lets developers and self-hosters deploy, evaluate, and develop on the Picstome photography ecosystem entirely on local machines — no commercial licensing and no external cloud dependencies (paid UI packages, public AWS S3 subscriptions, etc.) required.
